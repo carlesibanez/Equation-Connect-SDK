@@ -62,6 +62,28 @@ class EquationConnectAPI:
         """Retrieve specific device information."""
         return self.db.child("devices").child(device_id).get(self.id_token).val()
 
+    def get_devices(self):
+        """Retrieve all devices associated with the user."""
+        try:
+            installations = self.get_installations()
+            devices = []
+
+            for installation_id, installation_data in installations.items():
+                zones = installation_data.get("zones", {})
+                # Loop through each zone to retrieve devices
+                for zone_id, zone_data in zones.items():
+                    device_ids = zone_data.get("devices", {}).keys()
+                    for device_id in device_ids:
+                        # Use get_device to retrieve each device's details
+                        device = self.get_device(device_id)
+                        if device:
+                            devices.append({k:v for k,v in device.items()})
+
+            return devices
+        except Exception as e:
+            print(f"Error retrieving devices: {e}")
+            return []
+
     def set_device_power(self, device_id, power_state: bool):
         """Update the power state of a device (on/off)."""
         data = {"power": power_state}
