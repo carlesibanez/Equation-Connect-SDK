@@ -19,8 +19,9 @@ class EquationConnectAPI:
         self.email = email
         self.password = password
         self.user = self._authenticate()
-        self.id_token = self.user['idToken']
-        self.uid = self.user['localId']
+        if self.user:
+            self.id_token = self.user['idToken']
+            self.uid = self.user['localId']
 
     def _authenticate(self):
         try:
