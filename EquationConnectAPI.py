@@ -1,4 +1,5 @@
 import pyrebase
+import time
 
 class EquationConnectAPI:
     def __init__(self, email, password):
@@ -22,6 +23,9 @@ class EquationConnectAPI:
         if self.user:
             self.id_token = self.user['idToken']
             self.uid = self.user['localId']
+            expires_in = int(self.user.get('expiresIn', 3600))  # Default to 1 hour if 'expiresIn' is missing
+            self.token_expiration = time.time() + expires_in
+
 
     def _authenticate(self):
         try:
@@ -33,22 +37,33 @@ class EquationConnectAPI:
             return None
 
     def refresh_token(self):
-        """Refresh the user's token, which may expire after an hour."""
+        """Refresh the user's token and update the expiration time."""
         try:
             self.user = self.auth.refresh(self.user['refreshToken'])
             self.id_token = self.user['idToken']
+            expires_in = int(self.user.get('expiresIn', 3600))  # Default to 1 hour if 'expiresIn' is missing
+            self.token_expiration = time.time() + expires_in
             print("Token refreshed successfully")
         except Exception as e:
             print("Token refresh failed:", e)
 
+    def ensure_token_valid(self):
+        """Refresh the token if it's near expiration."""
+        # Refresh if token expires in less than 5 minutes
+        if time.time() >= self.token_expiration - 300:
+            self.refresh_token()
+
+
     def get_user_info(self):
         """Retrieve user information."""
+        self.ensure_token_valid()
         return self.db.child("users") \
                       .child(self.uid) \
                       .get(self.id_token).val()
 
     def get_installations(self):
         """Retrieve installations associated with the user's UID."""
+        self.ensure_token_valid()
         installations = self.db.child("installations2") \
             .order_by_child("userid") \
             .equal_to(self.uid) \
@@ -57,14 +72,17 @@ class EquationConnectAPI:
 
     def get_zone(self, installation_id, zone_id):
         """Retrieve specific zone information for a given installation."""
+        self.ensure_token_valid()
         return self.db.child("installations2").child(installation_id).child("zones").child(zone_id).get(self.id_token).val()
 
     def get_device(self, device_id):
         """Retrieve specific device information."""
+        self.ensure_token_valid()
         return self.db.child("devices").child(device_id).get(self.id_token).val()
 
     def get_devices(self):
         """Retrieve all devices associated with the user."""
+        self.ensure_token_valid()
         try:
             installations = self.get_installations()
             devices = []
@@ -87,16 +105,19 @@ class EquationConnectAPI:
 
     def set_device_power(self, device_id, power_state: bool):
         """Update the power state of a device (on/off)."""
+        self.ensure_token_valid()
         data = {"power": power_state}
         return self.db.child("devices").child(device_id).child("data").update(data, self.id_token)
 
     def set_device_temperature(self, device_id, temperature: int):
         """Update the temperature setting of a device."""
+        self.ensure_token_valid()
         data = {"temp": temperature}
         return self.db.child("devices").child(device_id).child("data").update(data, self.id_token)
 
     def set_device_mode(self, device_id, mode: str):
         """Set the device mode (e.g., 'manual' or 'eco')."""
+        self.ensure_token_valid()
         data = {"mode": mode}
         return self.db.child("devices").child(device_id).child("data").update(data, self.id_token)
 
