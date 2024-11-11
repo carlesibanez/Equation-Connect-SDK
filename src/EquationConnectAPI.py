@@ -1,7 +1,7 @@
 import pyrebase
 import time
 
-class EquationConnectAPI:
+class API:
     def __init__(self, email, password):
         # Firebase configuration
         self.config = {
