@@ -24,7 +24,7 @@ Here are all the parameters common to all the methods:
 
 ### Get user information
 
-```http
+```
   <DATABASE_URL>users/<UID>.json?auth=<FIREBASE_TOKEN>
 ```
 
@@ -34,7 +34,7 @@ Here are all the parameters common to all the methods:
 
 ### Get user installations
 
-```http
+```
   <DATABASE_URL>installations2.json?auth=<FIREBASE_TOKEN>&orderBy="userid"&equalTo="<UID>"
 ```
 
@@ -44,7 +44,7 @@ Here are all the parameters common to all the methods:
 
 ### Get zone for an installation
 
-```http
+```
   <DATABASE_URL>installations2/<InstallationId>/zones/<ZoneId>.json?auth=<FIREBASE_TOKEN>
 ```
 
@@ -55,7 +55,7 @@ Here are all the parameters common to all the methods:
 
 ### Get device properties
 
-```http
+```
   <DATABASE_URL>devices/<DeviceId>.json?auth=<FIREBASE_TOKEN>
 ```
 
@@ -68,7 +68,7 @@ Here are all the parameters common to all the methods:
 
 This endpoint is the same for changing any property by specifying it in the request body, i.e. changing the temperature, changing preset or turning on/off the radiator.
 
-```http
+```
   # Endpoint
   <DATABASE_URL>devices/<DeviceId>/data.json?auth=<FIREBASE_TOKEN>
 
