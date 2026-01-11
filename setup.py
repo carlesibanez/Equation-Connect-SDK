@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="EquationConnectSDK",
-    version="0.3.0",
+    version="0.3.1",
     author="Carles Ibáñez",
     author_email="carles.ibanez.trullen@gmail.com",
     description="A Python SDK for interacting with Equation Connect devices.",
